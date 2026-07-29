@@ -1,0 +1,13 @@
+# internal / fundraising docs stay out of the public repo
+deck/
+loi/
+tasks/
+.claude/
+CLAUDE.md
+GOALS.md
+# build artifacts
+ws/build/
+ws/install/
+ws/log/
+__pycache__/
+*.pyc
