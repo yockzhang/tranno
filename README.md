@@ -7,7 +7,7 @@ material running that eats a large share of crew time.
 
 We simulate first. Every mechanism and control decision runs in Gazebo before any hardware
 money is spent. Real T-01 v1 is a retrofit: an off-the-shelf tracked carrier with the
-operator station removed, plus a hydraulic arm, lift deck, cameras and RTK-GPS.
+operator station removed, plus an electric heavy-payload arm, lift deck, cameras and RTK-GPS.
 
 Built with ROS 2 Jazzy and Gazebo Harmonic, fully inside Docker. No local ROS install needed.
 
