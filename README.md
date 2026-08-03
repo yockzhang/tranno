@@ -3,7 +3,7 @@
 Simulation for T-01, a driverless tracked robot that delivers material on residential
 jobsites. It carries a 60 to 80 kg stack (lumber, pavers, cement bags) across the ground a
 truck can't reach: mud, gravel, slopes, 90 cm gates. The goal is to replace the manual
-material running that eats a large share of crew time.
+material running that eats up to 42% of crew time.
 
 We simulate first. Every mechanism and control decision runs in Gazebo before any hardware
 money is spent. Real T-01 v1 is a retrofit: an off-the-shelf tracked carrier with the
