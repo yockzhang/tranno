@@ -20,7 +20,7 @@ class Rec(Node):
         arr = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)
         if msg.encoding in ('rgb8',):
             arr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
-        cv2.imwrite(os.path.join(self.outdir, f"f_{self.n:06d}.png"), arr)
+        cv2.imwrite(os.path.join(self.outdir, f"f_{self.n:06d}.jpg"), arr)
         self.n += 1
 
 

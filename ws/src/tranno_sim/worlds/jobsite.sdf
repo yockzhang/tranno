@@ -91,12 +91,13 @@
 
     <!-- ===================== T-01 robot ===================== -->
     <model name="t01">
-      <pose>0 0 0.32 0 0 0</pose>
+      <pose>-0.36 0.585 0.32 0 0 -0.363</pose>
 
       <link name="chassis">
         <inertial>
-          <mass>90</mass>
-          <inertia><ixx>4.0</ixx><iyy>8.0</iyy><izz>10.0</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+          <pose>-0.12 0 -0.05 0 0 0</pose>
+          <mass>140</mass>
+          <inertia><ixx>6.0</ixx><iyy>12.5</iyy><izz>15.0</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
         </inertial>
         <collision name="c">
           <geometry><box><size>0.95 0.60 0.24</size></box></geometry>
@@ -104,6 +105,11 @@
         <visual name="v">
           <geometry><box><size>0.95 0.60 0.24</size></box></geometry>
           <material><ambient>0.10 0.10 0.12 1</ambient><diffuse>0.13 0.13 0.16 1</diffuse></material>
+        </visual>
+        <visual name="ballast">
+          <pose>-0.42 0 -0.02 0 0 0</pose>
+          <geometry><box><size>0.16 0.5 0.20</size></box></geometry>
+          <material><ambient>0.08 0.08 0.09 1</ambient><diffuse>0.11 0.11 0.13 1</diffuse></material>
         </visual>
         <visual name="stripe">
           <pose>0 0 0.09 0 0 0</pose>
@@ -132,70 +138,94 @@
         <parent>chassis</parent><child>camera_link</child>
       </joint>
 
-      <!-- lift carriage -->
+      <!-- front mast carriage (lift) -->
       <link name="lift_link">
-        <pose>0 0 0.17 0 0 0</pose>
+        <pose>0.50 0 -0.05 0 0 0</pose>
         <inertial>
-          <mass>6</mass>
-          <inertia><ixx>0.2</ixx><iyy>0.35</iyy><izz>0.5</izz></inertia>
+          <mass>8</mass>
+          <inertia><ixx>0.2</ixx><iyy>0.25</iyy><izz>0.3</izz></inertia>
         </inertial>
-        <collision name="c"><geometry><box><size>0.70 0.45 0.03</size></box></geometry></collision>
-        <visual name="v"><geometry><box><size>0.70 0.45 0.03</size></box></geometry>
+        <collision name="c"><geometry><box><size>0.06 0.44 0.30</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.06 0.44 0.30</size></box></geometry>
           <material><ambient>0.12 0.12 0.14 1</ambient><diffuse>0.15 0.15 0.18 1</diffuse></material></visual>
       </link>
       <joint name="lift_joint" type="prismatic">
         <parent>chassis</parent><child>lift_link</child>
         <axis>
           <xyz>0 0 1</xyz>
-          <limit><lower>0</lower><upper>0.45</upper><effort>8000</effort><velocity>0.4</velocity></limit>
-          <dynamics><damping>200</damping></dynamics>
+          <limit><lower>-0.05</lower><upper>0.45</upper><effort>8000</effort><velocity>0.4</velocity></limit>
+          <dynamics><damping>500</damping></dynamics>
         </axis>
       </joint>
-      <!-- tilt deck (dump) on top of the carriage; hinge at the rear edge -->
+      <!-- fork platform: backplate + two tines; hinge at the root tips the tines
+           forward so they become a ramp and the stack slides off to the ground -->
       <link name="tilt_deck">
-        <pose>0 0 0.215 0 0 0</pose>
+        <pose>0.56 0 -0.20 0 0 0</pose>
         <inertial>
-          <mass>8</mass>
-          <inertia><ixx>0.25</ixx><iyy>0.45</iyy><izz>0.65</izz></inertia>
+          <mass>10</mass>
+          <inertia><ixx>0.3</ixx><iyy>0.6</iyy><izz>0.8</izz></inertia>
         </inertial>
-        <collision name="c"><geometry><box><size>0.80 0.55 0.04</size></box></geometry>
-          <surface><friction><ode><mu>0.25</mu><mu2>0.25</mu2></ode></friction></surface></collision>
-        <visual name="v"><geometry><box><size>0.80 0.55 0.04</size></box></geometry>
+        <collision name="backplate"><pose>0.0 0 0.16 0 0 0</pose>
+          <geometry><box><size>0.04 0.50 0.30</size></box></geometry></collision>
+        <visual name="backplate_v"><pose>0.0 0 0.16 0 0 0</pose>
+          <geometry><box><size>0.04 0.50 0.30</size></box></geometry>
           <material><ambient>0.16 0.16 0.19 1</ambient><diffuse>0.2 0.2 0.24 1</diffuse></material></visual>
+        <collision name="tine_l"><pose>0.44 0.13 0.0 0 0 0</pose>
+          <geometry><box><size>0.82 0.10 0.028</size></box></geometry>
+          <surface><friction><ode><mu>0.6</mu><mu2>0.6</mu2></ode></friction></surface></collision>
+        <visual name="tine_l_v"><pose>0.44 0.13 0.0 0 0 0</pose>
+          <geometry><box><size>0.82 0.10 0.028</size></box></geometry>
+          <material><ambient>0.85 0.55 0.10 1</ambient><diffuse>0.95 0.62 0.12 1</diffuse></material></visual>
+        <collision name="tine_r"><pose>0.44 -0.13 0.0 0 0 0</pose>
+          <geometry><box><size>0.82 0.10 0.028</size></box></geometry>
+          <surface><friction><ode><mu>0.6</mu><mu2>0.6</mu2></ode></friction></surface></collision>
+        <visual name="tine_r_v"><pose>0.44 -0.13 0.0 0 0 0</pose>
+          <geometry><box><size>0.82 0.10 0.028</size></box></geometry>
+          <material><ambient>0.85 0.55 0.10 1</ambient><diffuse>0.95 0.62 0.12 1</diffuse></material></visual>
+        <collision name="rail_l"><pose>0.30 0.275 0.09 0 0 0</pose>
+          <geometry><box><size>0.55 0.03 0.12</size></box></geometry></collision>
+        <visual name="rail_l_v"><pose>0.30 0.275 0.09 0 0 0</pose>
+          <geometry><box><size>0.55 0.03 0.12</size></box></geometry>
+          <material><ambient>0.85 0.55 0.10 1</ambient><diffuse>0.95 0.62 0.12 1</diffuse></material></visual>
+        <collision name="rail_r"><pose>0.30 -0.275 0.09 0 0 0</pose>
+          <geometry><box><size>0.55 0.03 0.12</size></box></geometry></collision>
+        <visual name="rail_r_v"><pose>0.30 -0.275 0.09 0 0 0</pose>
+          <geometry><box><size>0.55 0.03 0.12</size></box></geometry>
+          <material><ambient>0.85 0.55 0.10 1</ambient><diffuse>0.95 0.62 0.12 1</diffuse></material></visual>
       </link>
       <joint name="tilt_joint" type="revolute">
         <parent>lift_link</parent><child>tilt_deck</child>
-        <pose>-0.38 0 -0.02 0 0 0</pose>
+        <pose>0.03 0 0.0 0 0 0</pose>
         <axis>
           <xyz>0 1 0</xyz>
-          <limit><lower>-0.7</lower><upper>0</upper><effort>4000</effort><velocity>0.8</velocity></limit>
-          <dynamics><damping>60</damping></dynamics>
+          <limit><lower>-0.20</lower><upper>0.7</upper><effort>4000</effort><velocity>0.8</velocity></limit>
+          <dynamics><damping>300</damping></dynamics>
         </axis>
       </joint>
 
       <!-- wheels (skid-steer approximation of tracks) -->
-      <link name="wheel_fl"><pose>0.32 0.36 -0.14 -1.5707 0 0</pose>
+      <link name="wheel_fl"><pose>0.42 0.40 -0.14 -1.5707 0 0</pose>
         <inertial><mass>6</mass><inertia><ixx>0.06</ixx><iyy>0.06</iyy><izz>0.1</izz></inertia></inertial>
         <collision name="c"><geometry><cylinder><radius>0.18</radius><length>0.12</length></cylinder></geometry>
           <surface><friction><ode><mu>1.1</mu><mu2>0.9</mu2></ode></friction></surface></collision>
         <visual name="v"><geometry><cylinder><radius>0.18</radius><length>0.12</length></cylinder></geometry>
           <material><ambient>0.06 0.06 0.07 1</ambient><diffuse>0.09 0.09 0.1 1</diffuse></material></visual>
       </link>
-      <link name="wheel_fr"><pose>0.32 -0.36 -0.14 -1.5707 0 0</pose>
+      <link name="wheel_fr"><pose>0.42 -0.40 -0.14 -1.5707 0 0</pose>
         <inertial><mass>6</mass><inertia><ixx>0.06</ixx><iyy>0.06</iyy><izz>0.1</izz></inertia></inertial>
         <collision name="c"><geometry><cylinder><radius>0.18</radius><length>0.12</length></cylinder></geometry>
           <surface><friction><ode><mu>1.1</mu><mu2>0.9</mu2></ode></friction></surface></collision>
         <visual name="v"><geometry><cylinder><radius>0.18</radius><length>0.12</length></cylinder></geometry>
           <material><ambient>0.06 0.06 0.07 1</ambient><diffuse>0.09 0.09 0.1 1</diffuse></material></visual>
       </link>
-      <link name="wheel_rl"><pose>-0.32 0.36 -0.14 -1.5707 0 0</pose>
+      <link name="wheel_rl"><pose>-0.42 0.40 -0.14 -1.5707 0 0</pose>
         <inertial><mass>6</mass><inertia><ixx>0.06</ixx><iyy>0.06</iyy><izz>0.1</izz></inertia></inertial>
         <collision name="c"><geometry><cylinder><radius>0.18</radius><length>0.12</length></cylinder></geometry>
           <surface><friction><ode><mu>1.1</mu><mu2>0.9</mu2></ode></friction></surface></collision>
         <visual name="v"><geometry><cylinder><radius>0.18</radius><length>0.12</length></cylinder></geometry>
           <material><ambient>0.06 0.06 0.07 1</ambient><diffuse>0.09 0.09 0.1 1</diffuse></material></visual>
       </link>
-      <link name="wheel_rr"><pose>-0.32 -0.36 -0.14 -1.5707 0 0</pose>
+      <link name="wheel_rr"><pose>-0.42 -0.40 -0.14 -1.5707 0 0</pose>
         <inertial><mass>6</mass><inertia><ixx>0.06</ixx><iyy>0.06</iyy><izz>0.1</izz></inertia></inertial>
         <collision name="c"><geometry><cylinder><radius>0.18</radius><length>0.12</length></cylinder></geometry>
           <surface><friction><ode><mu>1.1</mu><mu2>0.9</mu2></ode></friction></surface></collision>
@@ -205,19 +235,19 @@
 
       <joint name="wheel_fl_joint" type="revolute">
         <parent>chassis</parent><child>wheel_fl</child>
-        <axis><xyz>0 0 1</xyz><limit><effort>400</effort></limit></axis>
+        <axis><xyz>0 0 1</xyz><limit><effort>1500</effort></limit></axis>
       </joint>
       <joint name="wheel_fr_joint" type="revolute">
         <parent>chassis</parent><child>wheel_fr</child>
-        <axis><xyz>0 0 1</xyz><limit><effort>400</effort></limit></axis>
+        <axis><xyz>0 0 1</xyz><limit><effort>1500</effort></limit></axis>
       </joint>
       <joint name="wheel_rl_joint" type="revolute">
         <parent>chassis</parent><child>wheel_rl</child>
-        <axis><xyz>0 0 1</xyz><limit><effort>400</effort></limit></axis>
+        <axis><xyz>0 0 1</xyz><limit><effort>1500</effort></limit></axis>
       </joint>
       <joint name="wheel_rr_joint" type="revolute">
         <parent>chassis</parent><child>wheel_rr</child>
-        <axis><xyz>0 0 1</xyz><limit><effort>400</effort></limit></axis>
+        <axis><xyz>0 0 1</xyz><limit><effort>1500</effort></limit></axis>
       </joint>
 
       <!-- drive: skid steer via diff drive on both wheel pairs -->
@@ -226,20 +256,21 @@
         <left_joint>wheel_rl_joint</left_joint>
         <right_joint>wheel_fr_joint</right_joint>
         <right_joint>wheel_rr_joint</right_joint>
-        <wheel_separation>0.72</wheel_separation>
+        <wheel_separation>0.80</wheel_separation>
         <wheel_radius>0.18</wheel_radius>
         <topic>/cmd_vel</topic>
         <odom_topic>/odom</odom_topic>
-        <max_linear_acceleration>1.0</max_linear_acceleration>
+        <max_linear_acceleration>0.4</max_linear_acceleration>
       </plugin>
 
       <!-- lift control -->
       <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
         <joint_name>lift_joint</joint_name>
         <topic>/lift_cmd</topic>
-        <p_gain>6000</p_gain>
-        <d_gain>300</d_gain>
+        <p_gain>9000</p_gain>
+        <d_gain>600</d_gain>
         <i_gain>10</i_gain>
+        <initial_position>0.10</initial_position>
       </plugin>
 
       <!-- tilt control -->
@@ -247,7 +278,8 @@
         <joint_name>tilt_joint</joint_name>
         <topic>/tilt_cmd</topic>
         <p_gain>3000</p_gain>
-        <d_gain>150</d_gain>
+        <d_gain>300</d_gain>
+        <initial_position>0.0</initial_position>
       </plugin>
 
       <!-- true model pose (OdometryPublisher integrates velocity and drifts; this does not) -->
@@ -262,18 +294,28 @@
         <update_frequency>30</update_frequency>
       </plugin>
 
-      <!-- payload attach/detach -->
-      <plugin filename="gz-sim-detachable-joint-system" name="gz::sim::systems::DetachableJoint">
-        <parent_link>tilt_deck</parent_link>
-        <child_model>cedar_stack</child_model>
-        <child_link>stack_link</child_link>
-        <detach_topic>/detach</detach_topic>
-      </plugin>
     </model>
 
-    <!-- cedar stack payload, starts attached to the lift deck -->
+    <!-- dunnage stringers (fork channels) under the stack -->
+    <model name="dunnage">
+      <static>true</static>
+      <pose>1.51 -0.125 0.11 0 0 -0.363</pose>
+      <link name="l">
+        <collision name="s1"><pose>0 0.22 0 0 0 0</pose><geometry><box><size>0.9 0.05 0.22</size></box></geometry></collision>
+        <visual name="v1"><pose>0 0.22 0 0 0 0</pose><geometry><box><size>0.9 0.05 0.22</size></box></geometry>
+          <material><ambient>0.35 0.25 0.13 1</ambient><diffuse>0.42 0.30 0.15 1</diffuse></material></visual>
+        <collision name="s2"><pose>0 0 0 0 0 0</pose><geometry><box><size>0.9 0.06 0.22</size></box></geometry></collision>
+        <visual name="v2"><pose>0 0 0 0 0 0</pose><geometry><box><size>0.9 0.06 0.22</size></box></geometry>
+          <material><ambient>0.35 0.25 0.13 1</ambient><diffuse>0.42 0.30 0.15 1</diffuse></material></visual>
+        <collision name="s3"><pose>0 -0.22 0 0 0 0</pose><geometry><box><size>0.9 0.05 0.22</size></box></geometry></collision>
+        <visual name="v3"><pose>0 -0.22 0 0 0 0</pose><geometry><box><size>0.9 0.05 0.22</size></box></geometry>
+          <material><ambient>0.35 0.25 0.13 1</ambient><diffuse>0.42 0.30 0.15 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- cedar stack payload on the dunnage; the robot forks it for real -->
     <model name="cedar_stack">
-      <pose>0 0 0.75 0 0 0</pose>
+      <pose>1.51 -0.125 0.405 0 0 -0.363</pose>
       <link name="stack_link">
         <inertial>
           <mass>60</mass>
@@ -298,7 +340,7 @@
     <!-- ============ scenery pack (demo v2) ============ -->
     <model name="driveway">
       <static>true</static>
-      <pose>-2.5 -0.9 0.004 0 0 0</pose>
+      <pose>-3.3 -0.9 0.004 0 0 0</pose>
       <link name="l"><collision name="c"><geometry><box><size>4.0 2.6 0.008</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>4.0 2.6 0.008</size></box></geometry>
       <material><ambient>0.28 0.28 0.30 1</ambient><diffuse>0.33 0.33 0.35 1</diffuse></material></visual></link>
@@ -319,28 +361,28 @@
     </model>
     <model name="fence_a">
       <static>true</static>
-      <pose>5.0 1.3125 0.5 0 0 0</pose>
-      <link name="l"><collision name="c"><geometry><box><size>0.08 4.375 1.0</size></box></geometry></collision>
-      <visual name="v"><geometry><box><size>0.08 4.375 1.0</size></box></geometry>
+      <pose>5.0 1.375 0.5 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.08 4.25 1.0</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.08 4.25 1.0</size></box></geometry>
       <material><ambient>0.42 0.30 0.18 1</ambient><diffuse>0.5 0.36 0.22 1</diffuse></material></visual></link>
     </model>
     <model name="fence_b">
       <static>true</static>
-      <pose>5.0 -3.5125 0.5 0 0 0</pose>
-      <link name="l"><collision name="c"><geometry><box><size>0.08 2.975 1.0</size></box></geometry></collision>
-      <visual name="v"><geometry><box><size>0.08 2.975 1.0</size></box></geometry>
+      <pose>5.0 -3.575 0.5 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.08 2.85 1.0</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.08 2.85 1.0</size></box></geometry>
       <material><ambient>0.42 0.30 0.18 1</ambient><diffuse>0.5 0.36 0.22 1</diffuse></material></visual></link>
     </model>
     <model name="gate_post_a">
       <static>true</static>
-      <pose>5.0 -0.875 0.55 0 0 0</pose>
+      <pose>5.0 -0.75 0.55 0 0 0</pose>
       <link name="l"><collision name="c"><geometry><box><size>0.14 0.14 1.1</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>0.14 0.14 1.1</size></box></geometry>
       <material><ambient>0.32 0.22 0.12 1</ambient><diffuse>0.38 0.27 0.15 1</diffuse></material></visual></link>
     </model>
     <model name="gate_post_b">
       <static>true</static>
-      <pose>5.0 -2.025 0.55 0 0 0</pose>
+      <pose>5.0 -2.15 0.55 0 0 0</pose>
       <link name="l"><collision name="c"><geometry><box><size>0.14 0.14 1.1</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>0.14 0.14 1.1</size></box></geometry>
       <material><ambient>0.32 0.22 0.12 1</ambient><diffuse>0.38 0.27 0.15 1</diffuse></material></visual></link>

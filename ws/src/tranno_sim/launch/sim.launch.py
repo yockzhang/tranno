@@ -40,7 +40,6 @@ def generate_launch_description():
                 '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
                 '/lift_cmd@std_msgs/msg/Float64@gz.msgs.Double',
                 '/tilt_cmd@std_msgs/msg/Float64@gz.msgs.Double',
-                '/detach@std_msgs/msg/Empty@gz.msgs.Empty',
                 '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
                 '/model/t01/pose@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
                 '/front_cam@sensor_msgs/msg/Image@gz.msgs.Image',
