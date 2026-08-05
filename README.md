@@ -11,6 +11,12 @@ operator station removed, plus an electric heavy-payload arm, lift deck, cameras
 
 Built with ROS 2 Jazzy and Gazebo Harmonic, fully inside Docker. No local ROS install needed.
 
+## Watch it run
+
+23 seconds, fixed overview camera with the robot's own view inset:
+[docs/Tranno-Sim-Demo.mp4](docs/Tranno-Sim-Demo.mp4). Mission log from the same run:
+[docs/demo_mission.log](docs/demo_mission.log). Labeled simulation, as always.
+
 ## What's in the sim
 
 - `ws/src/tranno_sim/worlds/jobsite.sdf` : the world. Rough ground with bumps, a material

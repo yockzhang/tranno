@@ -282,5 +282,22 @@
       </link>
     </model>
 
+
+    <!-- fixed overview camera for demo recording -->
+    <model name="overview_cam_mount">
+      <static>true</static>
+      <pose>4 5.5 5 0 0.62 -1.5708</pose>
+      <link name="cam_link">
+        <sensor name="overview_cam" type="camera">
+          <topic>overview_cam</topic>
+          <update_rate>20</update_rate>
+          <camera>
+            <horizontal_fov>1.35</horizontal_fov>
+            <image><width>1280</width><height>720</height></image>
+            <clip><near>0.1</near><far>120</far></clip>
+          </camera>
+        </sensor>
+      </link>
+    </model>
   </world>
 </sdf>
