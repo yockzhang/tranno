@@ -1,15 +1,20 @@
-[INFO] [1785893367.151613490] [delivery_demo]: T-01 delivery mission start (closed-loop)
-[INFO] [1785893367.184270581] [delivery_demo]: 1/6 secure load: lift 0.12, deck level
-[INFO] [1785893369.232232334] [delivery_demo]: 2/6 waypoint 1/4: (2.6, -0.4)
-[INFO] [1785893374.670626400] [delivery_demo]:     -> reached at (2.35, -0.36)
-[INFO] [1785893374.726332797] [delivery_demo]: 2/6 waypoint 2/4: (5.2, -1.4)
-[INFO] [1785893381.084471962] [delivery_demo]:     -> reached at (4.97, -1.31)
-[INFO] [1785893381.124758833] [delivery_demo]: 2/6 waypoint 3/4: (7.2, -2.3)
-[INFO] [1785893386.220250975] [delivery_demo]:     -> reached at (6.98, -2.20)
-[INFO] [1785893386.249990472] [delivery_demo]: 2/6 waypoint 4/4: (7.9, -2.5)
-[INFO] [1785893389.171592557] [delivery_demo]:     -> reached at (7.66, -2.43)
-[INFO] [1785893389.220071436] [delivery_demo]: 3/6 on zone: lift down
-[INFO] [1785893391.277975403] [delivery_demo]: 4/6 release payload
-[INFO] [1785893391.928761179] [delivery_demo]: 5/6 tilt-deck dump
-[INFO] [1785893396.496988546] [delivery_demo]: 6/6 back away
-[INFO] [1785893399.555277351] [delivery_demo]: mission complete at (6.82, -2.18); stack should rest on the drop zone
+[INFO] [1785900559.728475057] [delivery_demo]: T-01 delivery mission start (closed-loop)
+[INFO] [1785900559.785154501] [delivery_demo]: 1/6 secure load: lift 0.12, deck level
+[INFO] [1785900561.869269203] [delivery_demo]: 2/6 waypoint 1/6: (2.4, -0.5)
+[INFO] [1785900567.356088681] [delivery_demo]:     -> reached at (2.14, -0.36)
+[INFO] [1785900567.410648577] [delivery_demo]: 2/6 waypoint 2/6: (3.4, -1.4)
+[INFO] [1785900571.840094834] [delivery_demo]:     -> reached at (3.24, -1.10)
+[INFO] [1785900571.907609237] [delivery_demo]: 2/6 waypoint 3/6: (4.2, -1.4)
+[WARN] [1785900588.726749816] [delivery_demo]:     no progress, backing up to retry
+[INFO] [1785900598.084077769] [delivery_demo]:     -> reached at (3.87, -1.56)
+[INFO] [1785900598.129878841] [delivery_demo]: 2/6 waypoint 4/6: (6.0, -1.4)
+[INFO] [1785900603.237660703] [delivery_demo]:     -> reached at (5.71, -1.46)
+[INFO] [1785900603.285646761] [delivery_demo]: 2/6 waypoint 5/6: (7.2, -2.3)
+[INFO] [1785900607.724349168] [delivery_demo]:     -> reached at (6.96, -2.13)
+[INFO] [1785900607.773417419] [delivery_demo]: 2/6 waypoint 6/6: (8.9, -2.6)
+[INFO] [1785900614.088836024] [delivery_demo]:     -> reached at (8.62, -2.68)
+[INFO] [1785900614.131751878] [delivery_demo]: 3/6 on zone: lift down
+[INFO] [1785900616.216724111] [delivery_demo]: 4/6 release payload
+[INFO] [1785900616.863165869] [delivery_demo]: 5/6 tilt-deck dump
+[INFO] [1785900621.414623907] [delivery_demo]: 6/6 turn and clear the zone (never reverse into the dropped stack)
+[INFO] [1785900626.067126673] [delivery_demo]: mission complete at (8.78, -2.56); stack should rest on the drop zone

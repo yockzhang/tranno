@@ -13,16 +13,17 @@ import time
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
+from tf2_msgs.msg import TFMessage
 from std_msgs.msg import Float64, Empty
 
-# route around the scrap obstacle at (4.2, 1.0), over bump2, onto the zone at (8.0, -2.5)
-WAYPOINTS = [(2.6, -0.4), (5.2, -1.4), (7.2, -2.3), (7.9, -2.5)]
+# route: around the scrap obstacle, THROUGH the 1.15 m yard gate at x=5.0, over bump2,
+# past the zone so the rear tilt-dump lands the stack ON the zone (it drops ~0.6 m behind)
+WAYPOINTS = [(2.4, -0.5), (3.4, -1.35), (4.15, -1.45), (6.0, -1.45), (7.2, -2.3), (8.9, -2.6)]
 
 V_MAX = 0.9          # m/s
 W_MAX = 0.9          # rad/s
 K_HEAD = 1.8         # heading P gain
-GOAL_TOL = 0.25      # m
+GOAL_TOL = 0.30      # m
 
 
 def yaw_from_quat(q):
@@ -39,11 +40,13 @@ class DeliveryDemo(Node):
         self.tilt = self.create_publisher(Float64, '/tilt_cmd', 10)
         self.detach = self.create_publisher(Empty, '/detach', 10)
         self.pose = None
-        self.create_subscription(Odometry, '/odom', self._odom, 20)
+        self.create_subscription(TFMessage, '/model/t01/pose', self._pose_cb, 20)
 
-    def _odom(self, msg):
-        p = msg.pose.pose
-        self.pose = (p.position.x, p.position.y, yaw_from_quat(p.orientation))
+    def _pose_cb(self, msg):
+        for tr in msg.transforms:
+            if tr.child_frame_id == 't01':
+                t = tr.transform
+                self.pose = (t.translation.x, t.translation.y, yaw_from_quat(t.rotation))
 
     def wait_for_odom(self, timeout=15.0):
         t0 = time.time()
@@ -55,8 +58,10 @@ class DeliveryDemo(Node):
         self.cmd.publish(Twist())
 
     def goto(self, gx, gy, timeout=40.0):
-        """P-controller drive to (gx, gy) in odom frame."""
+        """P-controller drive to (gx, gy) in world frame, with stuck recovery."""
         t0 = time.time()
+        last_progress = time.time()
+        last_pos = None
         while rclpy.ok() and time.time() - t0 < timeout:
             rclpy.spin_once(self, timeout_sec=0.05)
             if self.pose is None:
@@ -67,12 +72,31 @@ class DeliveryDemo(Node):
             if dist < GOAL_TOL:
                 self.stop()
                 return True
+            # stuck recovery: no progress for 6 s -> back up and retry
+            if last_pos is None or math.hypot(x - last_pos[0], y - last_pos[1]) > 0.05:
+                last_pos = (x, y)
+                last_progress = time.time()
+            elif time.time() - last_progress > 6.0:
+                self.get_logger().warn('    no progress, backing up to retry')
+                back = Twist()
+                back.linear.x = -0.4
+                for _ in range(30):
+                    self.cmd.publish(back)
+                    time.sleep(0.05)
+                self.stop()
+                last_progress = time.time()
+                last_pos = None
+                continue
             heading = math.atan2(dy, dx)
             err = math.atan2(math.sin(heading - yaw), math.cos(heading - yaw))
             msg = Twist()
             msg.angular.z = max(-W_MAX, min(W_MAX, K_HEAD * err))
-            # slow down when far off-heading or close to goal
-            msg.linear.x = max(0.15, V_MAX * max(0.0, math.cos(err)) * min(1.0, dist / 1.2))
+            # rotate in place when badly off-heading (prevents orbiting the goal
+            # and wedging into walls); otherwise scale speed by heading and distance
+            if abs(err) > 1.0:
+                msg.linear.x = 0.0
+            else:
+                msg.linear.x = max(0.08, V_MAX * math.cos(err) * min(1.0, dist / 1.2))
             self.cmd.publish(msg)
         self.stop()
         return False
@@ -82,7 +106,7 @@ class DeliveryDemo(Node):
         log('T-01 delivery mission start (closed-loop)')
 
         if not self.wait_for_odom():
-            self.get_logger().error('no /odom; is the sim + bridge running?')
+            self.get_logger().error('no /model/t01/pose; is the sim + bridge running?')
             return
 
         log('1/6 secure load: lift 0.12, deck level')
@@ -110,11 +134,17 @@ class DeliveryDemo(Node):
         self.tilt.publish(Float64(data=0.0))
         time.sleep(1.5)
 
-        log('6/6 back away')
+        log('6/6 turn and clear the zone (never reverse into the dropped stack)')
         msg = Twist()
-        msg.linear.x = -0.5
+        msg.angular.z = 0.9
         t0 = time.time()
-        while time.time() - t0 < 3.0:
+        while time.time() - t0 < 1.9:
+            self.cmd.publish(msg)
+            time.sleep(0.05)
+        msg = Twist()
+        msg.linear.x = 0.5
+        t0 = time.time()
+        while time.time() - t0 < 2.6:
             self.cmd.publish(msg)
             time.sleep(0.05)
         self.stop()

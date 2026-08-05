@@ -13,9 +13,12 @@ Built with ROS 2 Jazzy and Gazebo Harmonic, fully inside Docker. No local ROS in
 
 ## Watch it run
 
-23 seconds, fixed overview camera with the robot's own view inset:
+43 seconds, fixed overview camera with the robot's own view inset:
 [docs/Tranno-Sim-Demo.mp4](docs/Tranno-Sim-Demo.mp4). Mission log from the same run:
-[docs/demo_mission.log](docs/demo_mission.log). Labeled simulation, as always.
+[docs/demo_mission.log](docs/demo_mission.log). One take, real time, labeled simulation.
+The robot self-navigates from the pile, recovers once when it snags, threads a 1.15 m
+yard gate, crosses a rough board, dumps the 60 kg stack onto the drop zone, and turns
+clear without reversing into its own load.
 
 ## What's in the sim
 

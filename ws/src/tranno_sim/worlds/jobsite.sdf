@@ -15,8 +15,8 @@
     </plugin>
 
     <scene>
-      <ambient>0.6 0.6 0.6 1</ambient>
-      <background>0.75 0.78 0.82 1</background>
+      <ambient>0.7 0.7 0.7 1</ambient>
+      <background>0.55 0.75 0.95 1</background>
     </scene>
 
     <light type="directional" name="sun">
@@ -51,7 +51,7 @@
     </model>
     <model name="bump2">
       <static>true</static>
-      <pose>5.2 -1.2 0.025 0 0 -0.5</pose>
+      <pose>6.5 -2.0 0.025 0 0 -0.5</pose>
       <link name="l"><collision name="c"><geometry><box><size>1.2 0.6 0.08</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>1.2 0.6 0.08</size></box></geometry>
       <material><ambient>0.35 0.3 0.24 1</ambient><diffuse>0.4 0.34 0.27 1</diffuse></material></visual></link>
@@ -250,6 +250,18 @@
         <d_gain>150</d_gain>
       </plugin>
 
+      <!-- true model pose (OdometryPublisher integrates velocity and drifts; this does not) -->
+      <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+        <publish_model_pose>true</publish_model_pose>
+        <publish_link_pose>false</publish_link_pose>
+        <publish_collision_pose>false</publish_collision_pose>
+        <publish_visual_pose>false</publish_visual_pose>
+        <publish_nested_model_pose>false</publish_nested_model_pose>
+        <static_publisher>false</static_publisher>
+        <use_pose_vector_msg>true</use_pose_vector_msg>
+        <update_frequency>30</update_frequency>
+      </plugin>
+
       <!-- payload attach/detach -->
       <plugin filename="gz-sim-detachable-joint-system" name="gz::sim::systems::DetachableJoint">
         <parent_link>tilt_deck</parent_link>
@@ -283,16 +295,193 @@
     </model>
 
 
+    <!-- ============ scenery pack (demo v2) ============ -->
+    <model name="driveway">
+      <static>true</static>
+      <pose>-2.5 -0.9 0.004 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>4.0 2.6 0.008</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>4.0 2.6 0.008</size></box></geometry>
+      <material><ambient>0.28 0.28 0.30 1</ambient><diffuse>0.33 0.33 0.35 1</diffuse></material></visual></link>
+    </model>
+    <model name="truck_bed">
+      <static>true</static>
+      <pose>-2.1 -1.0 0.75 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>2.2 1.9 0.7</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>2.2 1.9 0.7</size></box></geometry>
+      <material><ambient>0.72 0.74 0.78 1</ambient><diffuse>0.82 0.84 0.88 1</diffuse></material></visual></link>
+    </model>
+    <model name="truck_cab">
+      <static>true</static>
+      <pose>-3.75 -1.0 0.7 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>1.1 1.9 1.4</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>1.1 1.9 1.4</size></box></geometry>
+      <material><ambient>0.82 0.30 0.16 1</ambient><diffuse>0.92 0.34 0.18 1</diffuse></material></visual></link>
+    </model>
+    <model name="fence_a">
+      <static>true</static>
+      <pose>5.0 1.3125 0.5 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.08 4.375 1.0</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.08 4.375 1.0</size></box></geometry>
+      <material><ambient>0.42 0.30 0.18 1</ambient><diffuse>0.5 0.36 0.22 1</diffuse></material></visual></link>
+    </model>
+    <model name="fence_b">
+      <static>true</static>
+      <pose>5.0 -3.5125 0.5 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.08 2.975 1.0</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.08 2.975 1.0</size></box></geometry>
+      <material><ambient>0.42 0.30 0.18 1</ambient><diffuse>0.5 0.36 0.22 1</diffuse></material></visual></link>
+    </model>
+    <model name="gate_post_a">
+      <static>true</static>
+      <pose>5.0 -0.875 0.55 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.14 0.14 1.1</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.14 0.14 1.1</size></box></geometry>
+      <material><ambient>0.32 0.22 0.12 1</ambient><diffuse>0.38 0.27 0.15 1</diffuse></material></visual></link>
+    </model>
+    <model name="gate_post_b">
+      <static>true</static>
+      <pose>5.0 -2.025 0.55 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.14 0.14 1.1</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.14 0.14 1.1</size></box></geometry>
+      <material><ambient>0.32 0.22 0.12 1</ambient><diffuse>0.38 0.27 0.15 1</diffuse></material></visual></link>
+    </model>
+    <model name="house_wall_a">
+      <static>true</static>
+      <pose>8.0 -4.3 1.15 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>3.6 0.15 2.3</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>3.6 0.15 2.3</size></box></geometry>
+      <material><ambient>0.82 0.78 0.70 1</ambient><diffuse>0.88 0.84 0.76 1</diffuse></material></visual></link>
+    </model>
+    <model name="house_wall_b">
+      <static>true</static>
+      <pose>9.8 -2.95 1.15 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.15 2.7 2.3</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.15 2.7 2.3</size></box></geometry>
+      <material><ambient>0.82 0.78 0.70 1</ambient><diffuse>0.88 0.84 0.76 1</diffuse></material></visual></link>
+    </model>
+    <model name="pallet1">
+      <static>true</static>
+      <pose>1.6 1.7 0.06 0 0 0.15</pose>
+      <link name="l"><collision name="c"><geometry><box><size>1.0 0.8 0.12</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>1.0 0.8 0.12</size></box></geometry>
+      <material><ambient>0.45 0.33 0.17 1</ambient><diffuse>0.55 0.40 0.20 1</diffuse></material></visual></link>
+    </model>
+    <model name="pallet2">
+      <static>true</static>
+      <pose>1.62 1.68 0.18 0 0 -0.1</pose>
+      <link name="l"><collision name="c"><geometry><box><size>1.0 0.8 0.12</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>1.0 0.8 0.12</size></box></geometry>
+      <material><ambient>0.42 0.30 0.15 1</ambient><diffuse>0.52 0.37 0.18 1</diffuse></material></visual></link>
+    </model>
+    <model name="pallet3">
+      <static>true</static>
+      <pose>1.58 1.72 0.30 0 0 0.05</pose>
+      <link name="l"><collision name="c"><geometry><box><size>1.0 0.8 0.12</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>1.0 0.8 0.12</size></box></geometry>
+      <material><ambient>0.45 0.33 0.17 1</ambient><diffuse>0.55 0.40 0.20 1</diffuse></material></visual></link>
+    </model>
+    <model name="gravel1">
+      <static>true</static>
+      <pose>0.5 -2.0 0.125 0 0 0.3</pose>
+      <link name="l"><collision name="c"><geometry><box><size>1.2 0.9 0.25</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>1.2 0.9 0.25</size></box></geometry>
+      <material><ambient>0.5 0.5 0.52 1</ambient><diffuse>0.58 0.58 0.60 1</diffuse></material></visual></link>
+    </model>
+    <model name="gravel2">
+      <static>true</static>
+      <pose>0.8 -1.7 0.30 0 0 -0.2</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.8 0.6 0.16</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.8 0.6 0.16</size></box></geometry>
+      <material><ambient>0.55 0.55 0.57 1</ambient><diffuse>0.62 0.62 0.64 1</diffuse></material></visual></link>
+    </model>
+    <model name="cone0">
+      <static>true</static>
+      <pose>2.1 0.9 0.14 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.12 0.12 0.28</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.12 0.12 0.28</size></box></geometry>
+      <material><ambient>1.0 0.45 0.05 1</ambient><diffuse>1.0 0.5 0.08 1</diffuse></material></visual></link>
+    </model>
+    <model name="cone1">
+      <static>true</static>
+      <pose>6.8 -0.6 0.14 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.12 0.12 0.28</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.12 0.12 0.28</size></box></geometry>
+      <material><ambient>1.0 0.45 0.05 1</ambient><diffuse>1.0 0.5 0.08 1</diffuse></material></visual></link>
+    </model>
+    <model name="cone2">
+      <static>true</static>
+      <pose>5.7 -3.3 0.14 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.12 0.12 0.28</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.12 0.12 0.28</size></box></geometry>
+      <material><ambient>1.0 0.45 0.05 1</ambient><diffuse>1.0 0.5 0.08 1</diffuse></material></visual></link>
+    </model>
+    <model name="trunk0">
+      <static>true</static>
+      <pose>0.5 -5.4 0.6 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.16 0.16 1.2</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.16 0.16 1.2</size></box></geometry>
+      <material><ambient>0.30 0.20 0.10 1</ambient><diffuse>0.36 0.24 0.12 1</diffuse></material></visual></link>
+    </model>
+    <model name="canopy0">
+      <static>true</static>
+      <pose>0.5 -5.4 1.5 0 0 0.4</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.75 0.75 0.7</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.75 0.75 0.7</size></box></geometry>
+      <material><ambient>0.13 0.35 0.13 1</ambient><diffuse>0.16 0.45 0.16 1</diffuse></material></visual></link>
+    </model>
+    <model name="trunk1">
+      <static>true</static>
+      <pose>3.4 -5.8 0.6 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.16 0.16 1.2</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.16 0.16 1.2</size></box></geometry>
+      <material><ambient>0.30 0.20 0.10 1</ambient><diffuse>0.36 0.24 0.12 1</diffuse></material></visual></link>
+    </model>
+    <model name="canopy1">
+      <static>true</static>
+      <pose>3.4 -5.8 1.5 0 0 0.4</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.75 0.75 0.7</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.75 0.75 0.7</size></box></geometry>
+      <material><ambient>0.13 0.35 0.13 1</ambient><diffuse>0.16 0.45 0.16 1</diffuse></material></visual></link>
+    </model>
+    <model name="trunk2">
+      <static>true</static>
+      <pose>-1.8 -5.0 0.6 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.16 0.16 1.2</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.16 0.16 1.2</size></box></geometry>
+      <material><ambient>0.30 0.20 0.10 1</ambient><diffuse>0.36 0.24 0.12 1</diffuse></material></visual></link>
+    </model>
+    <model name="canopy2">
+      <static>true</static>
+      <pose>-1.8 -5.0 1.5 0 0 0.4</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.75 0.75 0.7</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.75 0.75 0.7</size></box></geometry>
+      <material><ambient>0.13 0.35 0.13 1</ambient><diffuse>0.16 0.45 0.16 1</diffuse></material></visual></link>
+    </model>
+    <model name="trunk3">
+      <static>true</static>
+      <pose>11.6 -4.6 0.6 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.16 0.16 1.2</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.16 0.16 1.2</size></box></geometry>
+      <material><ambient>0.30 0.20 0.10 1</ambient><diffuse>0.36 0.24 0.12 1</diffuse></material></visual></link>
+    </model>
+    <model name="canopy3">
+      <static>true</static>
+      <pose>11.6 -4.6 1.5 0 0 0.4</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.75 0.75 0.7</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.75 0.75 0.7</size></box></geometry>
+      <material><ambient>0.13 0.35 0.13 1</ambient><diffuse>0.16 0.45 0.16 1</diffuse></material></visual></link>
+    </model>
+
     <!-- fixed overview camera for demo recording -->
     <model name="overview_cam_mount">
       <static>true</static>
-      <pose>4 5.5 5 0 0.62 -1.5708</pose>
+      <pose>2.8 6.8 6.2 0 0.66 -1.5708</pose>
       <link name="cam_link">
         <sensor name="overview_cam" type="camera">
           <topic>overview_cam</topic>
           <update_rate>20</update_rate>
           <camera>
-            <horizontal_fov>1.35</horizontal_fov>
+            <horizontal_fov>1.32</horizontal_fov>
             <image><width>1280</width><height>720</height></image>
             <clip><near>0.1</near><far>120</far></clip>
           </camera>
