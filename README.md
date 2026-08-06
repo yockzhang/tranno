@@ -13,24 +13,25 @@ Built with ROS 2 Jazzy and Gazebo Harmonic, fully inside Docker. No local ROS in
 
 ## Watch it run
 
-92 seconds, fixed overview camera with the robot's own view inset:
+87 seconds, fixed overview camera with the robot's own view inset:
 [docs/Tranno-Sim-Demo.mp4](docs/Tranno-Sim-Demo.mp4). Mission log from the same run:
-[docs/demo_mission.log](docs/demo_mission.log). One take (middle section labeled 3x),
-labeled simulation. MECHANISM loading, no arm, no teleport-attach: the 60 kg stack sits
-on dunnage stringers; the robot docks, slides its fork tines into the channels, lifts,
-racks the mast back, backs out of the dunnage, carries the load through the yard gate on
-rough ground, then raises the mast, tips the tines into a ramp and slides the stack off
-onto the drop zone. Load and unload are the same mechanism reversed, exactly how the
-real T-01 will work.
+[docs/demo_mission.log](docs/demo_mission.log). One take (middle section labeled 4x),
+labeled simulation. BEAR-HUG loading, not a forklift and not an arm: the 60 kg stack
+lies flat on the bare ground (no pallet, no dunnage). The robot straddles it with two
+clamp paddles, hugs it with a force-limited squeeze, lifts, carries it through the yard
+gate on rough ground, places it centered on the drop zone, opens the clamps, raises
+them clear over the top of the load and backs away. Load and unload are the same
+mechanism reversed, and nothing under the load is ever required: that is the point.
 
 ## What's in the sim
 
 - `ws/src/tranno_sim/worlds/jobsite.sdf` : the world. Rough ground with bumps, a material
   pile, a scrap-wood obstacle, an orange drop zone, and the robot.
 - The robot: skid-steer base (stands in for tracks), a front mast with a prismatic lift,
-  a tilting fork platform (two tines, side rails, load backplate), a front camera. The
-  60 kg cedar stack is a free body on dunnage: picked up and carried by contact physics
-  alone, no attach cheats.
+  and a BEAR-HUG clamp: two paddles on lateral prismatic joints that squeeze the load
+  (force-limited by the joint effort cap) and carry it by friction. The 60 kg cedar
+  stack is a free body flat on the ground: grabbed, carried and placed by contact
+  physics alone, no attach cheats, no pallets.
 - `launch/sim.launch.py` : starts Gazebo and bridges the topics to ROS 2:
   `/cmd_vel`, `/lift_cmd`, `/tilt_cmd`, `/detach`, `/odom`, `/front_cam`.
 - `tranno_sim/delivery_demo.py` : the full mission. Closed-loop waypoint navigation on

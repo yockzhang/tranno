@@ -1,28 +1,17 @@
-[INFO] [1785941572.495843109] [delivery_demo]: T-01 delivery mission start (mechanism load, closed-loop)
-[INFO] [1785941572.521419470] [delivery_demo]: 1/7 dock: unbury the tines, level, then entry height
-[INFO] [1785941576.073091981] [delivery_demo]: 2/7 insert tines into the dunnage channels
-[INFO] [1785941579.850904533] [delivery_demo]:     -> inserted at (0.49, 0.26)
-[INFO] [1785941579.891026381] [delivery_demo]: 3/7 lift the stack just clear, rack the mast back, carry LOW
-[INFO] [1785941582.945253519] [delivery_demo]: 3b/7 back straight out of the dunnage before any turn
-[INFO] [1785941588.945086459] [delivery_demo]:     -> clear of the dunnage at (-0.93, 0.81)
-[INFO] [1785941588.994731057] [delivery_demo]: 4/7 waypoint 1/5: (1.3, -1.4)
-[INFO] [1785941605.932862206] [delivery_demo]:     -> reached at (1.40, -1.07)
-[INFO] [1785941605.976213100] [delivery_demo]: 4/7 waypoint 2/5: (4.2, -1.4)
-[INFO] [1785941646.082513184] [delivery_demo]:     -> TIMEOUT at (4.59, -2.16)
-[INFO] [1785941646.131859355] [delivery_demo]: 4/7 waypoint 3/5: (5.8, -1.4)
-[WARN] [1785941655.180177483] [delivery_demo]:     no progress, backing up to retry
-[WARN] [1785941665.488658526] [delivery_demo]:     no progress, backing up to retry
-[WARN] [1785941675.807999563] [delivery_demo]:     no progress, backing up to retry
-[WARN] [1785941686.093095155] [delivery_demo]:     no progress, backing up to retry
-[INFO] [1785941687.355776482] [delivery_demo]:     -> TIMEOUT at (4.59, -2.16)
-[INFO] [1785941687.410500090] [delivery_demo]: 4/7 waypoint 4/5: (7.2, -2.3)
-[WARN] [1785941707.234790772] [delivery_demo]:     no progress, backing up to retry
-[INFO] [1785941722.233737798] [delivery_demo]:     -> reached at (6.93, -2.18)
-[INFO] [1785941722.281693869] [delivery_demo]: 4/7 waypoint 5/5: (8.9, -2.6)
-[WARN] [1785941737.104578598] [delivery_demo]:     no progress, backing up to retry
-[WARN] [1785941757.632070229] [delivery_demo]:     no progress, backing up to retry
-[INFO] [1785941762.390584219] [delivery_demo]:     -> TIMEOUT at (8.30, -2.51)
-[INFO] [1785941762.472556879] [delivery_demo]: 5/7 on zone: level the forks, raise mast for the ramp dump
-[INFO] [1785941765.519295830] [delivery_demo]: 6/7 tip the tines: ramp the stack down onto the zone
-[INFO] [1785941771.067728661] [delivery_demo]: 7/7 turn and clear the zone (never reverse into the dropped stack)
-[INFO] [1785941775.654866012] [delivery_demo]: mission complete at (8.41, -2.64); stack should rest on the drop zone
+[INFO] [1785978221.119038911] [delivery_demo]: T-01 delivery mission start (bear-hug clamp, closed-loop)
+[INFO] [1785978221.191656063] [delivery_demo]: 1/6 dock: clamps open, straddle the stack
+[INFO] [1785978230.375204624] [delivery_demo]:     -> straddling the stack at (0.63, 0.21)
+[INFO] [1785978230.438991972] [delivery_demo]: 2/6 hug: close the clamps (force-limited squeeze)
+[INFO] [1785978232.983991174] [delivery_demo]: 3/6 lift the stack well clear of the ground
+[INFO] [1785978235.532155704] [delivery_demo]: 4/6 waypoint 1/2: (2.4, -0.5)
+[INFO] [1785978244.816027686] [delivery_demo]:     -> reached at (2.16, -0.37)
+[INFO] [1785978244.875114165] [delivery_demo]: 4/6 waypoint 2/2: (3.5, -1.4)
+[INFO] [1785978255.576591571] [delivery_demo]:     -> reached at (3.39, -1.21)
+[INFO] [1785978255.619891801] [delivery_demo]: 4/6 gate: align square, thread it dead straight (deterministic transit)
+[INFO] [1785978320.734006463] [delivery_demo]:     -> GATE TIMEOUT at (4.90, -1.59)
+[INFO] [1785978320.780733510] [delivery_demo]: 4/6 waypoint 1/1 (post-gate): (7.0, -2.3)
+[INFO] [1785978360.841126523] [delivery_demo]:     -> TIMEOUT at (7.26, -2.19)
+[INFO] [1785978360.892807630] [delivery_demo]: 5/6 place: face the zone, advance until the load is centered on it
+[INFO] [1785978374.539602572] [delivery_demo]:     setting it down gently
+[INFO] [1785978378.946588186] [delivery_demo]: 6/6 back away clear over the top (the load stays exactly where placed)
+[INFO] [1785978388.566088343] [delivery_demo]: mission complete at (6.04, -1.45); stack placed on the drop zone

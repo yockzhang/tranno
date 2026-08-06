@@ -1,10 +1,11 @@
-"""Closed-loop delivery mission for T-01: MECHANISM loading, no arm, no teleport.
+"""Closed-loop delivery mission for T-01: BEAR-HUG clamp loading, no arm, no forks,
+no pallets, no attach cheats.
 
-The stack sits on dunnage stringers. The robot docks, slides its fork tines into
-the channels, lifts, carries the 60 kg stack through the yard gate on rough
-ground, then raises the mast, tips the tines forward into a ramp and lets the
-stack slide off onto the drop zone. Load and unload are the same mechanism
-reversed. Navigation is closed-loop on the true model pose.
+The 60 kg stack sits flat on the ground. The robot drives up so the stack is between
+its two clamp paddles, hugs it (force-limited squeeze), lifts, carries it through the
+yard gate on rough ground, then PLACES it centered on the drop zone: lower, open,
+back away. Load and unload are the same mechanism reversed. Navigation is closed-loop
+on the true model pose, with a stale-pose fuse (never drive blind).
 
 Run (while sim.launch.py is up):
   ros2 run tranno_sim delivery_demo
@@ -18,17 +19,27 @@ from geometry_msgs.msg import Twist
 from tf2_msgs.msg import TFMessage
 from std_msgs.msg import Float64
 
-# The pickup station is ROTATED to face the gate: dock, insert, backout and the run
-# to the gate all share one axis (heading -0.363 rad), so the loaded robot never has
-# to pivot hard. Waypoints follow that line, thread the gate, then bend gently to the zone.
+# The pickup axis points straight at the yard gate, so the loaded robot never has to
+# pivot hard. The stack sits ON the axis; waypoints continue along it, thread the
+# 1.4 m gate, then bend gently toward the drop zone.
 AXIS_H = -0.363
 AXIS_P0 = (-0.36, 0.585)
-WAYPOINTS = [(1.3, -1.35, 0.30), (4.25, -1.45, 0.15), (5.75, -1.45, 0.25), (7.2, -2.3, 0.30), (8.9, -2.6, 0.30)]
+STACK_S = 2.0            # stack center, distance along the axis from AXIS_P0
+CLAMP_REACH = 0.95       # clamp center sits this far ahead of the robot center
+ZONE = (8.0, -2.5)       # drop zone center: the PLACE target for the stack
 
-V_MAX = 0.5          # m/s (gentle: the load rides on open forks)
-W_MAX = 0.35         # rad/s (skid-steer chatter throws open loads)
-K_HEAD = 1.8         # heading P gain
-GOAL_TOL = 0.30      # m
+# (x, y, tolerance): tighter tolerance at the gate alignment point
+WAYPOINTS_PRE = [(2.44, -0.48, 0.30), (3.55, -1.40, 0.25)]   # to the gate approach
+GATE = (5.0, -1.45)                                          # gate center; transit heading = 0
+WAYPOINTS_POST = [(7.05, -2.30, 0.18)]                       # gate exit to the place point
+
+CLAMP_OPEN = 0.0
+CLAMP_HUG = 0.28         # position target past contact; joint effort cap limits force
+
+V_MAX = 0.5              # m/s (gentle with a hugged load)
+W_MAX = 0.35             # rad/s (skid-steer chatter is rough on cargo)
+K_HEAD = 1.8
+GOAL_TOL = 0.30
 
 
 def yaw_from_quat(q):
@@ -37,12 +48,17 @@ def yaw_from_quat(q):
     return math.atan2(siny, cosy)
 
 
+def ang(a):
+    return math.atan2(math.sin(a), math.cos(a))
+
+
 class DeliveryDemo(Node):
     def __init__(self):
         super().__init__('delivery_demo')
         self.cmd = self.create_publisher(Twist, '/cmd_vel', 10)
         self.lift = self.create_publisher(Float64, '/lift_cmd', 10)
-        self.tilt = self.create_publisher(Float64, '/tilt_cmd', 10)
+        self.clamp_l = self.create_publisher(Float64, '/clamp_l_cmd', 10)
+        self.clamp_r = self.create_publisher(Float64, '/clamp_r_cmd', 10)
         self.pose = None
         self.pose_stamp = 0.0
         self.create_subscription(TFMessage, '/model/t01/pose', self._pose_cb, 20)
@@ -61,7 +77,7 @@ class DeliveryDemo(Node):
             return False
         return True
 
-    def wait_for_odom(self, timeout=15.0):
+    def wait_for_pose(self, timeout=15.0):
         t0 = time.time()
         while self.pose is None and time.time() - t0 < timeout:
             rclpy.spin_once(self, timeout_sec=0.1)
@@ -69,6 +85,77 @@ class DeliveryDemo(Node):
 
     def stop(self):
         self.cmd.publish(Twist())
+
+    def set_clamps(self, target):
+        self.clamp_l.publish(Float64(data=target))
+        self.clamp_r.publish(Float64(data=target))
+
+    # ---------------- motion primitives ----------------
+
+    def creep_line(self, anchor, heading, s_stop, speed, timeout=35.0):
+        """Closed-loop straight drive along a line (anchor + heading), holding
+        heading and cross-track. s = signed distance along the line from anchor."""
+        ch, sh = math.cos(heading), math.sin(heading)
+        t0 = time.time()
+        while rclpy.ok() and time.time() - t0 < timeout:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            if self.pose is None or not self.pose_fresh():
+                continue
+            x, y, yaw = self.pose
+            dx, dy = x - anchor[0], y - anchor[1]
+            s = dx * ch + dy * sh
+            cross = -dx * sh + dy * ch
+            if (speed > 0 and s >= s_stop) or (speed < 0 and s <= s_stop):
+                self.stop()
+                return True
+            msg = Twist()
+            msg.linear.x = speed
+            msg.angular.z = max(-0.45, min(0.45, -1.8 * ang(yaw - heading) - 1.4 * cross))
+            self.cmd.publish(msg)
+        self.stop()
+        return False
+
+    def creep_axis(self, s_stop, speed, timeout=35.0):
+        return self.creep_line(AXIS_P0, AXIS_H, s_stop, speed, timeout)
+
+    def rotate_to(self, yaw_target, tol=0.06, timeout=20.0):
+        """Gentle rotate in place to a heading."""
+        t0 = time.time()
+        while rclpy.ok() and time.time() - t0 < timeout:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            if self.pose is None or not self.pose_fresh():
+                continue
+            err = ang(yaw_target - self.pose[2])
+            if abs(err) < tol:
+                self.stop()
+                return True
+            msg = Twist()
+            msg.angular.z = max(-W_MAX, min(W_MAX, K_HEAD * err))
+            self.cmd.publish(msg)
+        self.stop()
+        return False
+
+    def drive_straight(self, distance, speed, timeout=25.0):
+        """Drive straight (sign of speed = direction) holding the current heading."""
+        rclpy.spin_once(self, timeout_sec=0.1)
+        if self.pose is None:
+            return False
+        x0, y0, yaw0 = self.pose
+        t0 = time.time()
+        while rclpy.ok() and time.time() - t0 < timeout:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            if self.pose is None or not self.pose_fresh():
+                continue
+            x, y, yaw = self.pose
+            if math.hypot(x - x0, y - y0) >= distance:
+                self.stop()
+                return True
+            msg = Twist()
+            msg.linear.x = speed
+            msg.angular.z = max(-0.3, min(0.3, -1.5 * ang(yaw - yaw0)))
+            self.cmd.publish(msg)
+        self.stop()
+        return False
 
     def goto(self, gx, gy, tol=GOAL_TOL, timeout=40.0):
         """P-controller drive to (gx, gy) in world frame, with stuck recovery."""
@@ -85,12 +172,10 @@ class DeliveryDemo(Node):
             if dist < tol:
                 self.stop()
                 return True
-            # stuck recovery: no progress for 6 s -> back up and retry
-            # (pure rotation IS progress: rotate-in-place must not trigger this)
+            # stuck recovery: no progress (position OR heading) for 9 s -> back up, retry
             if (last_pos is None
                     or math.hypot(x - last_pos[0], y - last_pos[1]) > 0.05
-                    or abs(math.atan2(math.sin(yaw - last_pos[2]),
-                                      math.cos(yaw - last_pos[2]))) > 0.15):
+                    or abs(ang(yaw - last_pos[2])) > 0.15):
                 last_pos = (x, y, yaw)
                 last_progress = time.time()
             elif time.time() - last_progress > 9.0:
@@ -105,11 +190,9 @@ class DeliveryDemo(Node):
                 last_pos = None
                 continue
             heading = math.atan2(dy, dx)
-            err = math.atan2(math.sin(heading - yaw), math.cos(heading - yaw))
+            err = ang(heading - yaw)
             msg = Twist()
             msg.angular.z = max(-W_MAX, min(W_MAX, K_HEAD * err))
-            # rotate in place when badly off-heading (prevents orbiting the goal
-            # and wedging into walls); otherwise scale speed by heading and distance
             if abs(err) > 1.0:
                 msg.linear.x = 0.0
             else:
@@ -118,104 +201,82 @@ class DeliveryDemo(Node):
         self.stop()
         return False
 
-    def creep_axis(self, s_stop, speed, timeout=35.0):
-        """Straight drive along the pickup axis (AXIS_H through AXIS_P0), holding
-        heading and cross-track. s = signed distance along the axis from AXIS_P0.
-        Positive speed: insert; negative: back out of the dunnage."""
-        ch, sh = math.cos(AXIS_H), math.sin(AXIS_H)
-        t0 = time.time()
-        while rclpy.ok() and time.time() - t0 < timeout:
-            rclpy.spin_once(self, timeout_sec=0.05)
-            if self.pose is None or not self.pose_fresh():
-                continue
-            x, y, yaw = self.pose
-            dx, dy = x - AXIS_P0[0], y - AXIS_P0[1]
-            s = dx * ch + dy * sh
-            cross = -dx * sh + dy * ch
-            if (speed > 0 and s >= s_stop) or (speed < 0 and s <= s_stop):
-                self.stop()
-                return True
-            herr = math.atan2(math.sin(yaw - AXIS_H), math.cos(yaw - AXIS_H))
-            msg = Twist()
-            msg.linear.x = speed
-            msg.angular.z = max(-0.3, min(0.3, -1.5 * herr - 0.8 * cross))
-            self.cmd.publish(msg)
-        self.stop()
-        return False
-
-    def creep_insert(self, s_stop, speed=0.45, timeout=25.0):
-        return self.creep_axis(s_stop, speed, timeout)
+    # ---------------- the mission ----------------
 
     def run(self):
         log = self.get_logger().info
-        log('T-01 delivery mission start (mechanism load, closed-loop)')
+        log('T-01 delivery mission start (bear-hug clamp, closed-loop)')
 
-        if not self.wait_for_odom():
+        if not self.wait_for_pose():
             self.get_logger().error('no /model/t01/pose; is the sim + bridge running?')
             return
 
-        log('1/7 dock: unbury the tines, level, then entry height')
-        self.lift.publish(Float64(data=0.30))
-        self.tilt.publish(Float64(data=0.0))
-        time.sleep(2.0)
-        self.lift.publish(Float64(data=0.02))
+        log('1/6 dock: clamps open, straddle the stack')
+        self.set_clamps(CLAMP_OPEN)
+        self.lift.publish(Float64(data=0.05))
         time.sleep(1.5)
+        ok = self.creep_axis(STACK_S - CLAMP_REACH, 0.35)
+        log(f'    -> {"straddling the stack" if ok else "DOCK TIMEOUT"} at '
+            f'({self.pose[0]:.2f}, {self.pose[1]:.2f})')
 
-        log('2/7 insert tines into the dunnage channels')
-        ok = self.creep_insert(0.90)
-        log(f'    -> {"inserted" if ok else "INSERT TIMEOUT"} at ({self.pose[0]:.2f}, {self.pose[1]:.2f})')
+        log('2/6 hug: close the clamps (force-limited squeeze)')
+        self.set_clamps(CLAMP_HUG)
+        time.sleep(2.5)
 
-        log('3/7 lift the stack just clear, rack the mast back, carry LOW')
-        self.lift.publish(Float64(data=0.35))
-        time.sleep(2.0)
-        self.tilt.publish(Float64(data=-0.18))
-        time.sleep(1.0)
+        log('3/6 lift the stack well clear of the ground')
+        self.lift.publish(Float64(data=0.42))
+        time.sleep(2.5)
 
-        log('3b/7 back straight out of the dunnage before any turn')
-        ok = self.creep_axis(-0.60, -0.45, timeout=35.0)
-        self.lift.publish(Float64(data=0.15))
-        time.sleep(1.0)
-        log(f'    -> {"clear of the dunnage" if ok else "BACKOUT TIMEOUT"} at ({self.pose[0]:.2f}, {self.pose[1]:.2f})')
-
-        for i, (gx, gy, tol) in enumerate(WAYPOINTS, start=1):
-            log(f'4/7 waypoint {i}/{len(WAYPOINTS)}: ({gx:.1f}, {gy:.1f})')
+        for i, (gx, gy, tol) in enumerate(WAYPOINTS_PRE, start=1):
+            log(f'4/6 waypoint {i}/{len(WAYPOINTS_PRE)}: ({gx:.1f}, {gy:.1f})')
             reached = self.goto(gx, gy, tol)
             log(f'    -> {"reached" if reached else "TIMEOUT"} at '
                 f'({self.pose[0]:.2f}, {self.pose[1]:.2f})')
 
-        log('5/7 on zone: level the forks, raise mast for the ramp dump')
-        self.tilt.publish(Float64(data=0.0))
-        time.sleep(1.0)
-        self.lift.publish(Float64(data=0.42))
-        time.sleep(2.0)
+        log('4/6 gate: align square, thread it dead straight (deterministic transit)')
+        self.rotate_to(0.0, tol=0.05)
+        ok = self.creep_line(GATE, 0.0, 1.35, 0.28, timeout=45.0)
+        log(f'    -> {"through the gate" if ok else "GATE TIMEOUT"} at '
+            f'({self.pose[0]:.2f}, {self.pose[1]:.2f})')
 
-        log('6/7 tip the tines: ramp the stack down onto the zone')
-        self.tilt.publish(Float64(data=0.65))
-        time.sleep(3.5)
-        self.tilt.publish(Float64(data=0.0))
-        time.sleep(1.0)
-        self.lift.publish(Float64(data=0.10))
-        time.sleep(1.0)
+        for i, (gx, gy, tol) in enumerate(WAYPOINTS_POST, start=1):
+            log(f'4/6 waypoint {i}/{len(WAYPOINTS_POST)} (post-gate): ({gx:.1f}, {gy:.1f})')
+            reached = self.goto(gx, gy, tol)
+            log(f'    -> {"reached" if reached else "TIMEOUT"} at '
+                f'({self.pose[0]:.2f}, {self.pose[1]:.2f})')
 
-        log('7/7 turn and clear the zone (never reverse into the dropped stack)')
-        msg = Twist()
-        msg.angular.z = 0.9
+        log('5/6 place: face the zone, advance until the load is centered on it')
+        rclpy.spin_once(self, timeout_sec=0.1)
+        x, y, _ = self.pose
+        self.rotate_to(math.atan2(ZONE[1] - y, ZONE[0] - x))
         t0 = time.time()
-        while time.time() - t0 < 1.9:
+        while rclpy.ok() and time.time() - t0 < 25.0:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            if self.pose is None or not self.pose_fresh():
+                continue
+            x, y, yaw = self.pose
+            if math.hypot(ZONE[0] - x, ZONE[1] - y) <= CLAMP_REACH:
+                self.stop()
+                break
+            msg = Twist()
+            msg.linear.x = 0.22
+            msg.angular.z = max(-0.25, min(0.25, K_HEAD * ang(
+                math.atan2(ZONE[1] - y, ZONE[0] - x) - yaw)))
             self.cmd.publish(msg)
-            time.sleep(0.05)
-        msg = Twist()
-        msg.linear.x = 0.5
-        t0 = time.time()
-        while time.time() - t0 < 2.6:
-            self.cmd.publish(msg)
-            time.sleep(0.05)
         self.stop()
+        log('    setting it down gently')
+        self.lift.publish(Float64(data=0.0))
+        time.sleep(2.0)
+        self.set_clamps(CLAMP_OPEN)
+        time.sleep(1.5)
+        log('6/6 back away clear over the top (the load stays exactly where placed)')
+        self.drive_straight(1.8, -0.30)
+        self.lift.publish(Float64(data=0.10))
 
         rclpy.spin_once(self, timeout_sec=0.2)
         if self.pose:
             log(f'mission complete at ({self.pose[0]:.2f}, {self.pose[1]:.2f}); '
-                f'stack should rest on the drop zone')  # verify with gz model -m cedar_stack -p
+                f'stack placed on the drop zone')
 
 
 def main():
