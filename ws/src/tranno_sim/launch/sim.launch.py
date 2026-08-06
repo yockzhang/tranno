@@ -46,6 +46,7 @@ def generate_launch_description():
                 '/model/cedar_stack/pose@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
                 '/world/jobsite/model/t01/joint_state@sensor_msgs/msg/JointState@gz.msgs.Model',
                 '/front_cam@sensor_msgs/msg/Image@gz.msgs.Image',
+                '/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan',
             ],
             output='screen'),
     ])

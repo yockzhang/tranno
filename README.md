@@ -13,16 +13,19 @@ Built with ROS 2 Jazzy and Gazebo Harmonic, fully inside Docker. No local ROS in
 
 ## Watch it run
 
-67 seconds, fixed overview camera with the robot's own view inset:
+92 seconds, fixed overview camera with the robot's masthead view inset:
 [docs/Tranno-Sim-Demo.mp4](docs/Tranno-Sim-Demo.mp4). Mission log from the same run:
-[docs/demo_mission.log](docs/demo_mission.log). One take (middle section labeled 3x),
-labeled simulation. BEAR-HUG loading, not a forklift and not an arm: the 60 kg stack
-lies flat on the bare ground (no pallet, no dunnage). The robot straddles it with two
-clamp paddles, hugs it (force-limited squeeze), hops it up to seat the underhook toes,
-lifts, carries it through the yard gate on rough ground, sets it down centered on the
-drop zone, opens up, raises the paddles clear over the top and backs away. Verified by
-telemetry, not by eyeballing: the stack rides at z=0.4 m the whole route and lands
-6 cm from the zone center. Load and unload are the same mechanism reversed.
+[docs/demo_mission.log](docs/demo_mission.log). One take (sped-up sections labeled),
+labeled simulation, with on-screen phase captions. PERCEPTION-DRIVEN: nothing about
+the pile or the drop point is hardcoded. The robot SCANS with its masthead camera and
+finds the cedar stack (color segmentation), visual-servos in, bear-hugs it (force
+squeeze + underhook toes), carries it on the site corridor with a 2D lidar watching
+for unplanned obstacles, threads the yard gate closed-loop, then finds the ORANGE drop
+zone by camera, servos to it and sets the load down. Load telemetry verifies every
+phase (the load's own z is the only honest metric). Honest gaps, on the record: the
+load can still shed at the gate exit on some runs (~50%), placement lands within
+~0.9 m of the zone center, and the route corridor + gate line still come from the site
+map. Next: tighter placement, multi-trip loop, drop-verification (Milestone 2).
 
 ## What's in the sim
 

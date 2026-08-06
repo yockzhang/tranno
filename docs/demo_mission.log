@@ -1,20 +1,41 @@
-[INFO] [1785982943.978775033] [delivery_demo]: T-01 delivery mission start (bear-hug clamp, closed-loop)
-[INFO] [1785982944.062295259] [delivery_demo]: 1/6 dock: clamps open, straddle the stack
-[INFO] [1785982951.707849846] [delivery_demo]:     -> straddling the stack at (0.63, 0.21)
-[INFO] [1785982951.736232039] [delivery_demo]: 2/6 hug: close the clamps (force-limited squeeze)
-[INFO] [1785982954.291661684] [delivery_demo]:     [stack@after-hug] x=1.51 y=-0.12 z=0.180
-[INFO] [1785982954.323912340] [delivery_demo]: 3/6 lift a hand-width, seat the underhook toes, then lift clear
-[INFO] [1785982960.382566930] [delivery_demo]:     [stack@after-lift] x=1.51 y=-0.12 z=0.368
-[INFO] [1785982960.419635096] [delivery_demo]: 4/6 waypoint 1/2: (2.4, -0.5)
-[INFO] [1785982969.567267039] [delivery_demo]:     -> reached at (2.18, -0.34)
-[INFO] [1785982969.596531618] [delivery_demo]: 4/6 waypoint 2/2: (3.5, -1.4)
-[INFO] [1785982978.217175449] [delivery_demo]:     -> reached at (3.40, -1.20)
-[INFO] [1785982978.274716134] [delivery_demo]:     [stack@mid-carry] x=4.07 y=-1.88 z=0.418
-[INFO] [1785982978.320260788] [delivery_demo]: 4/6 gate: align square, thread it dead straight (deterministic transit)
-[INFO] [1785983016.539055003] [delivery_demo]:     -> through the gate at (6.61, -1.45)
-[INFO] [1785983016.593155362] [delivery_demo]: 5/6 place: face the zone, advance until the load is centered on it
-[INFO] [1785983028.557106694] [delivery_demo]:     [stack@pre-place] x=8.06 y=-2.43 z=0.399
-[INFO] [1785983028.596001628] [delivery_demo]:     setting it down gently
-[INFO] [1785983032.144247108] [delivery_demo]: 6/6 back away clear over the top (the load stays exactly where placed)
-[INFO] [1785983042.725986685] [delivery_demo]:     [stack@final] x=8.05 y=-2.44 z=0.180
-[INFO] [1785983042.761850602] [delivery_demo]: mission complete at (6.01, -0.60); stack z should be ~0.18 and x,y near (8.0, -2.5)
+[INFO] [1785990434.052941739] [delivery_demo]: T-01 delivery mission start: perception-driven (camera + lidar)
+[INFO] [1785990434.105646736] [delivery_demo]: 1-3/7 SCAN + DOCK + LOAD (perception-driven pickup)
+[INFO] [1785990434.148486774] [delivery_demo]:     SCAN: spin and find the cedar stack with the camera
+[INFO] [1785990439.093005330] [delivery_demo]:     pile FOUND by camera: bearing -0.05 rad, area 4599 px
+[INFO] [1785990439.133599790] [delivery_demo]:     DOCK: visual servo, lidar range gate, short blind entry
+[INFO] [1785990439.175163076] [delivery_demo]:     [servo] front range: 1.32
+[INFO] [1785990441.215050795] [delivery_demo]:     [servo] front range: 1.15
+[INFO] [1785990448.459721794] [delivery_demo]:     docked at (0.69, 0.24); clamp center at (1.60, -0.03)
+[INFO] [1785990448.495643523] [delivery_demo]:     LOAD: hug, hop, seat the underhook toes, lift
+[INFO] [1785990451.047427992] [delivery_demo]:     [stack@after-hug] x=1.72 y=0.02 z=0.180
+[INFO] [1785990457.087286818] [delivery_demo]:     [stack@after-lift] x=1.72 y=-0.06 z=0.385
+[INFO] [1785990457.148343406] [delivery_demo]: 4/7 CARRY: site-map corridor with live lidar avoidance
+[INFO] [1785990457.194592773] [delivery_demo]:     waypoint 1/2: (2.4, -0.5)
+[INFO] [1785990469.394594177] [delivery_demo]:     -> reached at (2.21, -0.29)
+[INFO] [1785990469.446227361] [delivery_demo]:     waypoint 2/2: (3.5, -1.4)
+[INFO] [1785990474.580879745] [delivery_demo]:     obstacle at 1.45 m: arcing left
+[INFO] [1785990479.331579746] [delivery_demo]:     -> reached at (3.39, -1.21)
+[INFO] [1785990479.371517839] [delivery_demo]:     [stack@mid-carry] x=4.25 y=-1.88 z=0.442
+[INFO] [1785990479.432544700] [delivery_demo]: 5/7 GATE: align square, thread it on a closed loop
+[INFO] [1785990547.145055771] [delivery_demo]:     -> through the gate at (6.35, -1.19)
+[WARN] [1785990547.202161205] [delivery_demo]:     load slipped: setting down, backing off, re-acquiring by vision
+[INFO] [1785990576.251772091] [delivery_demo]:     SCAN: spin and find the cedar stack with the camera
+[INFO] [1785990617.324128239] [delivery_demo]:     [stack@after-regrip] x=7.29 y=-1.60 z=0.180
+[INFO] [1785990617.362161415] [delivery_demo]: 6/7 PLACE: find the orange drop zone with the camera and go to it
+[INFO] [1785990640.272256640] [delivery_demo]:     drop zone FOUND by camera: bearing +0.05 rad, area 7432 px
+[INFO] [1785990640.340011117] [delivery_demo]:     [servo] front range: 0.82
+[INFO] [1785990642.331539960] [delivery_demo]:     [servo] front range: 0.8
+[INFO] [1785990644.335151905] [delivery_demo]:     [servo] front range: 0.76
+[INFO] [1785990646.382844566] [delivery_demo]:     [servo] front range: 0.78
+[INFO] [1785990648.367343656] [delivery_demo]:     [servo] front range: 0.81
+[INFO] [1785990650.399196910] [delivery_demo]:     [servo] front range: 0.81
+[INFO] [1785990652.390756044] [delivery_demo]:     [servo] front range: 0.82
+[INFO] [1785990654.424840689] [delivery_demo]:     [servo] front range: 0.84
+[INFO] [1785990656.440888916] [delivery_demo]:     [servo] front range: 0.85
+[INFO] [1785990658.434621566] [delivery_demo]:     [servo] front range: 0.88
+[INFO] [1785990660.465789056] [delivery_demo]:     [servo] front range: 0.89
+[INFO] [1785990660.833626487] [delivery_demo]:     zone at the bumper: 0.72 m straight, then set the load down on it
+[INFO] [1785990685.911834205] [delivery_demo]:     [stack@pre-place] x=7.67 y=-1.74 z=0.180
+[INFO] [1785990691.252343669] [delivery_demo]: 7/7 CLEAR: back away over the top of the load
+[INFO] [1785990716.379560778] [delivery_demo]:     [stack@final] x=7.67 y=-1.74 z=0.180
+[INFO] [1785990716.427883019] [delivery_demo]: mission complete; stack is 0.83 m from the zone center it found by camera (truth check only)

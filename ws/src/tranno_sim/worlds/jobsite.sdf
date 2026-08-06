@@ -36,7 +36,7 @@
         </collision>
         <visual name="v">
           <geometry><plane><normal>0 0 1</normal><size>60 60</size></plane></geometry>
-          <material><ambient>0.45 0.40 0.33 1</ambient><diffuse>0.5 0.45 0.38 1</diffuse></material>
+          <material><ambient>0.42 0.41 0.38 1</ambient><diffuse>0.47 0.46 0.43 1</diffuse></material>
         </visual>
       </link>
     </model>
@@ -111,6 +111,16 @@
           <geometry><box><size>0.16 0.5 0.20</size></box></geometry>
           <material><ambient>0.08 0.08 0.09 1</ambient><diffuse>0.11 0.11 0.13 1</diffuse></material>
         </visual>
+        <sensor name="lidar" type="gpu_lidar">
+          <pose>0.48 0 -0.20 0 0 0</pose>
+          <topic>scan</topic>
+          <update_rate>10</update_rate>
+          <lidar>
+            <scan><horizontal><samples>480</samples><resolution>1</resolution>
+              <min_angle>-3.1416</min_angle><max_angle>3.1416</max_angle></horizontal></scan>
+            <range><min>0.15</min><max>14.0</max><resolution>0.01</resolution></range>
+          </lidar>
+        </sensor>
         <visual name="stripe">
           <pose>0 0 0.09 0 0 0</pose>
           <geometry><box><size>0.96 0.61 0.03</size></box></geometry>
@@ -120,10 +130,12 @@
 
       <!-- mast + camera -->
       <link name="camera_link">
-        <pose>0.42 0 0.45 0 0 0</pose>
+        <pose>0.30 0 1.50 0 0.25 0</pose>
         <inertial><mass>0.5</mass><inertia><ixx>0.01</ixx><iyy>0.01</iyy><izz>0.01</izz></inertia></inertial>
         <visual name="v"><geometry><box><size>0.08 0.10 0.08</size></box></geometry>
           <material><ambient>0.05 0.05 0.06 1</ambient><diffuse>0.08 0.08 0.1 1</diffuse></material></visual>
+        <visual name="pole"><pose>0 0 -0.62 0 -0.25 0</pose><geometry><box><size>0.05 0.05 1.18</size></box></geometry>
+          <material><ambient>0.10 0.10 0.12 1</ambient><diffuse>0.13 0.13 0.16 1</diffuse></material></visual>
         <sensor name="front_cam" type="camera">
           <topic>front_cam</topic>
           <update_rate>15</update_rate>
@@ -317,7 +329,7 @@
     <!-- cedar stack payload flat on the ground (no pallet, no dunnage): the robot
          clamps it from the sides, which is the whole point of the bear-hug design -->
     <model name="cedar_stack">
-      <pose>1.51 -0.125 0.185 0 0 -0.363</pose>
+      <pose>1.72 0.02 0.185 0 0 -0.30</pose>
       <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
         <publish_model_pose>true</publish_model_pose>
         <publish_link_pose>false</publish_link_pose>
@@ -373,28 +385,28 @@
     </model>
     <model name="fence_a">
       <static>true</static>
-      <pose>5.0 1.375 0.5 0 0 0</pose>
-      <link name="l"><collision name="c"><geometry><box><size>0.08 4.25 1.0</size></box></geometry></collision>
-      <visual name="v"><geometry><box><size>0.08 4.25 1.0</size></box></geometry>
+      <pose>5.0 1.45 0.5 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.08 4.1 1.0</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.08 4.1 1.0</size></box></geometry>
       <material><ambient>0.42 0.30 0.18 1</ambient><diffuse>0.5 0.36 0.22 1</diffuse></material></visual></link>
     </model>
     <model name="fence_b">
       <static>true</static>
-      <pose>5.0 -3.575 0.5 0 0 0</pose>
-      <link name="l"><collision name="c"><geometry><box><size>0.08 2.85 1.0</size></box></geometry></collision>
-      <visual name="v"><geometry><box><size>0.08 2.85 1.0</size></box></geometry>
+      <pose>5.0 -3.65 0.5 0 0 0</pose>
+      <link name="l"><collision name="c"><geometry><box><size>0.08 2.7 1.0</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.08 2.7 1.0</size></box></geometry>
       <material><ambient>0.42 0.30 0.18 1</ambient><diffuse>0.5 0.36 0.22 1</diffuse></material></visual></link>
     </model>
     <model name="gate_post_a">
       <static>true</static>
-      <pose>5.0 -0.75 0.55 0 0 0</pose>
+      <pose>5.0 -0.60 0.55 0 0 0</pose>
       <link name="l"><collision name="c"><geometry><box><size>0.14 0.14 1.1</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>0.14 0.14 1.1</size></box></geometry>
       <material><ambient>0.32 0.22 0.12 1</ambient><diffuse>0.38 0.27 0.15 1</diffuse></material></visual></link>
     </model>
     <model name="gate_post_b">
       <static>true</static>
-      <pose>5.0 -2.15 0.55 0 0 0</pose>
+      <pose>5.0 -2.30 0.55 0 0 0</pose>
       <link name="l"><collision name="c"><geometry><box><size>0.14 0.14 1.1</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>0.14 0.14 1.1</size></box></geometry>
       <material><ambient>0.32 0.22 0.12 1</ambient><diffuse>0.38 0.27 0.15 1</diffuse></material></visual></link>
@@ -524,6 +536,16 @@
       <link name="l"><collision name="c"><geometry><box><size>0.75 0.75 0.7</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>0.75 0.75 0.7</size></box></geometry>
       <material><ambient>0.13 0.35 0.13 1</ambient><diffuse>0.16 0.45 0.16 1</diffuse></material></visual></link>
+    </model>
+
+    <model name="barrel">
+      <static>true</static>
+      <pose>6.7 -1.95 0.30 0 0 0</pose>
+      <link name="l">
+        <collision name="c"><geometry><cylinder><radius>0.18</radius><length>0.60</length></cylinder></geometry></collision>
+        <visual name="v"><geometry><cylinder><radius>0.18</radius><length>0.60</length></cylinder></geometry>
+          <material><ambient>0.55 0.10 0.08 1</ambient><diffuse>0.70 0.12 0.10 1</diffuse></material></visual>
+      </link>
     </model>
 
     <!-- fixed overview camera for demo recording -->
