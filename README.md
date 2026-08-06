@@ -27,6 +27,12 @@ load can still shed at the gate exit on some runs (~50%), placement lands within
 ~0.9 m of the zone center, and the route corridor + gate line still come from the site
 map. Next: tighter placement, multi-trip loop, drop-verification (Milestone 2).
 
+## New to ROS? Start here
+
+[docs/FOUNDER_TOUR.md](docs/FOUNDER_TOUR.md): a 30-minute copy-paste tour: run the sim
+with the 3D window, drive the robot by hand, work the clamp, run the full mission, and
+make your first world edit.
+
 ## What's in the sim
 
 - `ws/src/tranno_sim/worlds/jobsite.sdf` : the world. Rough ground with bumps, a material
