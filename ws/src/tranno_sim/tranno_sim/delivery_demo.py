@@ -31,10 +31,10 @@ ZONE = (8.0, -2.5)       # drop zone center: the PLACE target for the stack
 # (x, y, tolerance): tighter tolerance at the gate alignment point
 WAYPOINTS_PRE = [(2.44, -0.48, 0.30), (3.55, -1.40, 0.25)]   # to the gate approach
 GATE = (5.0, -1.45)                                          # gate center; transit heading = 0
-WAYPOINTS_POST = [(7.05, -2.30, 0.18)]                       # gate exit to the place point
+WAYPOINTS_POST = []                                          # post-gate is deterministic
 
 CLAMP_OPEN = 0.0
-CLAMP_HUG = 0.28         # position target past contact; joint effort cap limits force
+CLAMP_HUG = 0.45         # position target past contact; joint effort cap limits force
 
 V_MAX = 0.5              # m/s (gentle with a hugged load)
 W_MAX = 0.35             # rad/s (skid-steer chatter is rough on cargo)
@@ -61,7 +61,9 @@ class DeliveryDemo(Node):
         self.clamp_r = self.create_publisher(Float64, '/clamp_r_cmd', 10)
         self.pose = None
         self.pose_stamp = 0.0
+        self.stack = None
         self.create_subscription(TFMessage, '/model/t01/pose', self._pose_cb, 20)
+        self.create_subscription(TFMessage, '/model/cedar_stack/pose', self._stack_cb, 10)
 
     def _pose_cb(self, msg):
         for tr in msg.transforms:
@@ -69,6 +71,18 @@ class DeliveryDemo(Node):
                 t = tr.transform
                 self.pose = (t.translation.x, t.translation.y, yaw_from_quat(t.rotation))
                 self.pose_stamp = time.time()
+
+    def _stack_cb(self, msg):
+        for tr in msg.transforms:
+            if tr.child_frame_id == 'cedar_stack':
+                t = tr.transform
+                self.stack = (t.translation.x, t.translation.y, t.translation.z)
+
+    def stack_report(self, tag):
+        rclpy.spin_once(self, timeout_sec=0.2)
+        if self.stack:
+            self.get_logger().info(
+                f'    [stack@{tag}] x={self.stack[0]:.2f} y={self.stack[1]:.2f} z={self.stack[2]:.3f}')
 
     def pose_fresh(self):
         """Never drive blind: if the pose stream stalls, stop and wait."""
@@ -157,6 +171,22 @@ class DeliveryDemo(Node):
         self.stop()
         return False
 
+    def regrip_if_slipping(self):
+        """If the load has sagged in the jaws, stop and re-grip (lower, squeeze, lift).
+        The real machine will do exactly this off its grip encoders."""
+        rclpy.spin_once(self, timeout_sec=0.05)
+        if self.stack is None or self.stack[2] > 0.35:
+            return
+        self.get_logger().warn('    load slipping in the jaws: stopping to re-grip')
+        self.stop()
+        self.lift.publish(Float64(data=0.0))
+        time.sleep(2.0)
+        self.set_clamps(CLAMP_HUG)
+        time.sleep(1.0)
+        self.lift.publish(Float64(data=0.42))
+        time.sleep(2.0)
+        self.stack_report('after-regrip')
+
     def goto(self, gx, gy, tol=GOAL_TOL, timeout=40.0):
         """P-controller drive to (gx, gy) in world frame, with stuck recovery."""
         t0 = time.time()
@@ -223,9 +253,15 @@ class DeliveryDemo(Node):
         self.set_clamps(CLAMP_HUG)
         time.sleep(2.5)
 
-        log('3/6 lift the stack well clear of the ground')
+        self.stack_report('after-hug')
+        log('3/6 lift a hand-width, seat the underhook toes, then lift clear')
+        self.lift.publish(Float64(data=0.14))
+        time.sleep(2.0)
+        self.set_clamps(CLAMP_HUG)
+        time.sleep(1.5)
         self.lift.publish(Float64(data=0.42))
         time.sleep(2.5)
+        self.stack_report('after-lift')
 
         for i, (gx, gy, tol) in enumerate(WAYPOINTS_PRE, start=1):
             log(f'4/6 waypoint {i}/{len(WAYPOINTS_PRE)}: ({gx:.1f}, {gy:.1f})')
@@ -233,12 +269,15 @@ class DeliveryDemo(Node):
             log(f'    -> {"reached" if reached else "TIMEOUT"} at '
                 f'({self.pose[0]:.2f}, {self.pose[1]:.2f})')
 
+        self.stack_report('mid-carry')
+        self.regrip_if_slipping()
         log('4/6 gate: align square, thread it dead straight (deterministic transit)')
         self.rotate_to(0.0, tol=0.05)
-        ok = self.creep_line(GATE, 0.0, 1.35, 0.28, timeout=45.0)
+        ok = self.creep_line(GATE, 0.0, 1.60, 0.32, timeout=80.0)
         log(f'    -> {"through the gate" if ok else "GATE TIMEOUT"} at '
             f'({self.pose[0]:.2f}, {self.pose[1]:.2f})')
 
+        self.regrip_if_slipping()
         for i, (gx, gy, tol) in enumerate(WAYPOINTS_POST, start=1):
             log(f'4/6 waypoint {i}/{len(WAYPOINTS_POST)} (post-gate): ({gx:.1f}, {gy:.1f})')
             reached = self.goto(gx, gy, tol)
@@ -250,7 +289,7 @@ class DeliveryDemo(Node):
         x, y, _ = self.pose
         self.rotate_to(math.atan2(ZONE[1] - y, ZONE[0] - x))
         t0 = time.time()
-        while rclpy.ok() and time.time() - t0 < 25.0:
+        while rclpy.ok() and time.time() - t0 < 40.0:
             rclpy.spin_once(self, timeout_sec=0.05)
             if self.pose is None or not self.pose_fresh():
                 continue
@@ -264,6 +303,7 @@ class DeliveryDemo(Node):
                 math.atan2(ZONE[1] - y, ZONE[0] - x) - yaw)))
             self.cmd.publish(msg)
         self.stop()
+        self.stack_report('pre-place')
         log('    setting it down gently')
         self.lift.publish(Float64(data=0.0))
         time.sleep(2.0)
@@ -274,9 +314,10 @@ class DeliveryDemo(Node):
         self.lift.publish(Float64(data=0.10))
 
         rclpy.spin_once(self, timeout_sec=0.2)
+        self.stack_report('final')
         if self.pose:
             log(f'mission complete at ({self.pose[0]:.2f}, {self.pose[1]:.2f}); '
-                f'stack placed on the drop zone')
+                f'stack z should be ~0.18 and x,y near ({ZONE[0]:.1f}, {ZONE[1]:.1f})')
 
 
 def main():

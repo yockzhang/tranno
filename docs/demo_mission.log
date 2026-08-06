@@ -1,17 +1,20 @@
-[INFO] [1785978221.119038911] [delivery_demo]: T-01 delivery mission start (bear-hug clamp, closed-loop)
-[INFO] [1785978221.191656063] [delivery_demo]: 1/6 dock: clamps open, straddle the stack
-[INFO] [1785978230.375204624] [delivery_demo]:     -> straddling the stack at (0.63, 0.21)
-[INFO] [1785978230.438991972] [delivery_demo]: 2/6 hug: close the clamps (force-limited squeeze)
-[INFO] [1785978232.983991174] [delivery_demo]: 3/6 lift the stack well clear of the ground
-[INFO] [1785978235.532155704] [delivery_demo]: 4/6 waypoint 1/2: (2.4, -0.5)
-[INFO] [1785978244.816027686] [delivery_demo]:     -> reached at (2.16, -0.37)
-[INFO] [1785978244.875114165] [delivery_demo]: 4/6 waypoint 2/2: (3.5, -1.4)
-[INFO] [1785978255.576591571] [delivery_demo]:     -> reached at (3.39, -1.21)
-[INFO] [1785978255.619891801] [delivery_demo]: 4/6 gate: align square, thread it dead straight (deterministic transit)
-[INFO] [1785978320.734006463] [delivery_demo]:     -> GATE TIMEOUT at (4.90, -1.59)
-[INFO] [1785978320.780733510] [delivery_demo]: 4/6 waypoint 1/1 (post-gate): (7.0, -2.3)
-[INFO] [1785978360.841126523] [delivery_demo]:     -> TIMEOUT at (7.26, -2.19)
-[INFO] [1785978360.892807630] [delivery_demo]: 5/6 place: face the zone, advance until the load is centered on it
-[INFO] [1785978374.539602572] [delivery_demo]:     setting it down gently
-[INFO] [1785978378.946588186] [delivery_demo]: 6/6 back away clear over the top (the load stays exactly where placed)
-[INFO] [1785978388.566088343] [delivery_demo]: mission complete at (6.04, -1.45); stack placed on the drop zone
+[INFO] [1785982943.978775033] [delivery_demo]: T-01 delivery mission start (bear-hug clamp, closed-loop)
+[INFO] [1785982944.062295259] [delivery_demo]: 1/6 dock: clamps open, straddle the stack
+[INFO] [1785982951.707849846] [delivery_demo]:     -> straddling the stack at (0.63, 0.21)
+[INFO] [1785982951.736232039] [delivery_demo]: 2/6 hug: close the clamps (force-limited squeeze)
+[INFO] [1785982954.291661684] [delivery_demo]:     [stack@after-hug] x=1.51 y=-0.12 z=0.180
+[INFO] [1785982954.323912340] [delivery_demo]: 3/6 lift a hand-width, seat the underhook toes, then lift clear
+[INFO] [1785982960.382566930] [delivery_demo]:     [stack@after-lift] x=1.51 y=-0.12 z=0.368
+[INFO] [1785982960.419635096] [delivery_demo]: 4/6 waypoint 1/2: (2.4, -0.5)
+[INFO] [1785982969.567267039] [delivery_demo]:     -> reached at (2.18, -0.34)
+[INFO] [1785982969.596531618] [delivery_demo]: 4/6 waypoint 2/2: (3.5, -1.4)
+[INFO] [1785982978.217175449] [delivery_demo]:     -> reached at (3.40, -1.20)
+[INFO] [1785982978.274716134] [delivery_demo]:     [stack@mid-carry] x=4.07 y=-1.88 z=0.418
+[INFO] [1785982978.320260788] [delivery_demo]: 4/6 gate: align square, thread it dead straight (deterministic transit)
+[INFO] [1785983016.539055003] [delivery_demo]:     -> through the gate at (6.61, -1.45)
+[INFO] [1785983016.593155362] [delivery_demo]: 5/6 place: face the zone, advance until the load is centered on it
+[INFO] [1785983028.557106694] [delivery_demo]:     [stack@pre-place] x=8.06 y=-2.43 z=0.399
+[INFO] [1785983028.596001628] [delivery_demo]:     setting it down gently
+[INFO] [1785983032.144247108] [delivery_demo]: 6/6 back away clear over the top (the load stays exactly where placed)
+[INFO] [1785983042.725986685] [delivery_demo]:     [stack@final] x=8.05 y=-2.44 z=0.180
+[INFO] [1785983042.761850602] [delivery_demo]: mission complete at (6.01, -0.60); stack z should be ~0.18 and x,y near (8.0, -2.5)

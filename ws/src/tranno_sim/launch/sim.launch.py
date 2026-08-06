@@ -43,6 +43,8 @@ def generate_launch_description():
                 '/clamp_r_cmd@std_msgs/msg/Float64@gz.msgs.Double',
                 '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
                 '/model/t01/pose@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
+                '/model/cedar_stack/pose@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
+                '/world/jobsite/model/t01/joint_state@sensor_msgs/msg/JointState@gz.msgs.Model',
                 '/front_cam@sensor_msgs/msg/Image@gz.msgs.Image',
             ],
             output='screen'),
